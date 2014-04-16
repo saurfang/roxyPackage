@@ -16,13 +16,13 @@ The source code is distributed under GPL 3 as can be found in the LICENSE.txt
 
 ##How to get it
 
-###Stable Version
+####Stable Version
 You may install the package directly from original Author Michalke's R repository:
 ```R
 install.packages("roxyPackage", repo="http://R.reaktanz.de")
 ```
 
-###Development Version
+####Development Version
 To get latest version on Github:
 ```R
 devtools::install_github(c("saurfang/roxyPackage"))
