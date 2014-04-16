@@ -3,7 +3,7 @@
 \title{Generate PACKAGES files}
 \usage{
 write_PACKAGES(dir = ".", type = c("source", "mac.binary", "win.binary"),
-  verbose = FALSE, subdirs = FALSE, ...)
+  verbose = FALSE, subdirs = FALSE, latestOnly = TRUE, ...)
 }
 \arguments{
   \item{dir}{Character vector describing the location of
@@ -23,6 +23,11 @@ write_PACKAGES(dir = ".", type = c("source", "mac.binary", "win.binary"),
   \item{subdirs}{either logical (to indicate if
   subdirectories should be included, recursively) or a
   character vector of name of subdirectories to include.}
+
+  \item{latestOnly}{logical: if multiple versions of a
+  package are available should only the latest version be
+  included? (\code{\link{archive.packages}} only works for
+  source packages when \code{latestOnly} is \code{FALSE})}
 
   \item{...}{additional arguments passed to
   \code{\link[tools]{write_PACKAGES}}}

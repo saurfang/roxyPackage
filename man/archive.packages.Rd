@@ -10,7 +10,7 @@ archive.packages(repo.root, to.dir = "Archive", keep = 1, package = NULL,
   \item{repo.root}{Path to the repository root, i.e., the
   directory which contains the \code{src} and \code{bin}
   directories. Usually this path should start with
-  "\code{file:///}".}
+  "\code{file:///}" except for Windows.}
 
   \item{to.dir}{Character string, name of the folder to
   move the old packages to.}

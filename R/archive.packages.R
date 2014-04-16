@@ -24,7 +24,7 @@
 #' @note This function responds to \code{\link[roxyPackage:sandbox]{sandbox}}.
 #'
 #' @param repo.root Path to the repository root, i.e., the directory which contains the \code{src}
-#'    and \code{bin} directories. Usually this path should start with "\code{file:///}".
+#'    and \code{bin} directories. Usually this path should start with "\code{file:///}" except for Windows.
 #' @param to.dir Character string, name of the folder to move the old packages to.
 #' @param keep An integer value defining the maximum nuber of versions to keep. Setting this to 0 will
 #'    completely remove all packages from the repository, which is probably only useful in combination
@@ -70,7 +70,7 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
   all.valid.types <- c("source", "win.binary", "mac.binary.leopard")
   if(any(!type %in% all.valid.types)){
     stop(simpleError("archive: invalid package type specified!"))
-  } else {}
+  }
 
   if(isTRUE(check.sandbox())){
     message("preparing sandbox...")
@@ -84,15 +84,22 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
     archive.root <- adjust.paths[["archive.root"]]
     to.dir <- adjust.paths[["to.dir"]]
     sandbox.status()
-  } else {}
+  }
 
-  if(!grepl("^file:///", repo.root)){
+  if(!grepl("^file:///", repo.root) && .Platform$OS.type != "windows"){
     warning("'repo.root' does not start with 'file:///', are you sure this is correct?")
   }
 
   archInRepo <- identical(repo.root, archive.root)
   clean.repo.root <- gsub("/$", "", repo.root)
   clean.archive.root <- ifelse(isTRUE(archInRepo), clean.repo.root, gsub("/$", "", archive.root))
+  
+  # create a wrapper for available.packages to fill file://
+  available.packages <- function(url, type){
+    if(.Platform$OS.type == "windows" && !grepl("^file:///", url))
+      url <- paste0("file:///", gsub("^(/)+", "", url))
+    utils::available.packages(url, type=type)
+  }
 
   ## create a complete inventory of the repository, at least for all packages queried
   in.repo <- list()
@@ -128,6 +135,7 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
   ## whether the maximum number of packages was reached
 
   for (this.type in all.valid.types){
+    updatePACKAGES <- FALSE
     # iterate through in.repo$this.type$Package
     checkThisRepo <- in.repo[[this.type]]
     if(length(checkThisRepo) > 0){
@@ -147,6 +155,9 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
           }
           moveVersions <- presentVersions[!presentVersions %in% keepVersions]
           if(length(moveVersions) > 0){
+            updatePACKAGES <- TRUE
+            writePCKtype <- "source"
+            this.repo <- repo.src
             if(this.type %in% type){
               mvToArchive(this.package, repo=repo.src, archive=file.path(archive.src, to.dir), versions=moveVersions, 
                 type=this.type, overwrite=overwrite, reallyDoIt=reallyDoIt)
@@ -154,14 +165,7 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
               mvToArchive(this.package, repo=repo.src, archive=file.path(archive.src, to.dir), versions=moveVersions, 
                 type=this.type, overwrite=overwrite, reallyDoIt=reallyDoIt, justDelete=TRUE)
             }
-            # update PACKAGES
-            if(isTRUE(reallyDoIt)){
-              write_PACKAGES(dir=gsub("^file:(/)+", "/", repo.src), type="source", verbose=FALSE, latestOnly=FALSE)
-              message("archive: updated src/contrib/PACKAGES (source)")
-            } else {
-              message("archive: updated src/contrib/PACKAGES (source) (NOT RUN!)")
-            }
-          } else {}
+          }
         }
       } else {
         for (this.R.num in 1:length(checkThisRepo)){
@@ -182,6 +186,7 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
             }
             moveVersions <- presentVersions[!presentVersions %in% keepVersions]
             if(length(moveVersions) > 0){
+              updatePACKAGES <- TRUE
               if(identical(this.type, "win.binary")){
                 this.repo <- repo.win[this.R.num]
                 this.archive <- archive.win[this.R.num]
@@ -198,18 +203,20 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
                 mvToArchive(this.package, repo=this.repo, archive=file.path(this.archive, to.dir), versions=moveVersions, 
                   type=this.type, overwrite=overwrite, reallyDoIt=reallyDoIt, justDelete=TRUE)
               }
-              # update PACKAGES
-              if(isTRUE(reallyDoIt)){
-                write_PACKAGES(dir=gsub("^file:(/)+", "/", this.repo), type=writePCKtype, verbose=FALSE, latestOnly=FALSE)
-                message(paste0("archive: updated bin/PACKAGES (", this.type, ")"))
-              } else {
-                message(paste0("archive: updated bin/PACKAGES (", this.type, ") (NOT RUN!)"))
-              }
-            } else {}
+            }
           }
         }
       }
-    } else {}
+    }
+    
+    # update PACKAGES
+    if(isTRUE(updatePACKAGES))
+      if(isTRUE(reallyDoIt)){
+        write_PACKAGES(dir=gsub("^file:(/)+", "/", this.repo), type=writePCKtype, verbose=FALSE, latestOnly=FALSE)
+        message(paste0("archive: updated bin/PACKAGES (", this.type, ")"))
+      } else {
+        message(paste0("archive: updated bin/PACKAGES (", this.type, ") (NOT RUN!)"))
+      }
   }
 
   return(invisible(NULL))

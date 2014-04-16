@@ -17,18 +17,19 @@
 #' @param subdirs either logical (to indicate if subdirectories should be
 #' included, recursively) or a character vector of name of subdirectories
 #' to include.
+#' @param latestOnly logical: if multiple versions of a package are available should only the latest version be included? (\code{\link{archive.packages}} only works for source packages when \code{latestOnly} is \code{FALSE})
 #' @param ... additional arguments passed to \code{\link[tools]{write_PACKAGES}}
 #' 
 #' @importFrom tools write_PACKAGES
 #' @seealso \code{\link[tools]{write_PACKAGES}}
 #' @export
-write_PACKAGES <- function(dir = ".", type = c("source", "mac.binary", "win.binary"),  verbose = FALSE, subdirs = FALSE, ...){
+write_PACKAGES <- function(dir = ".", type = c("source", "mac.binary", "win.binary"),  verbose = FALSE, subdirs = FALSE, latestOnly = TRUE, ...){
   if (missing(type) && .Platform$OS.type == "windows") 
     type <- "win.binary"
   type <- match.arg(type)
   
   default_write_PACKAGES <- function(mydir=dir){
-    tools::write_PACKAGES(mydir, type=type, verbose=verbose, subdirs=subdirs, ...)
+    tools::write_PACKAGES(mydir, type=type, verbose=verbose, subdirs=subdirs, latestOnly=latestOnly, ...)
   }
   
   if(.Platform$OS.type == "windows" && type == "source"){
