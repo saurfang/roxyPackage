@@ -10,11 +10,11 @@ This is a direct mirror of the current roxyPackage http://reaktanz.de/?c=hacking
 Since neither the package author Michalke or anyone has published this codebase on Github, this repository has been created to facilitate experimental feature enhancements and bug fixes.
 
 
-#License
+##License
 The source code is distributed under GPL 3 as can be found in the LICENSE.txt
 
 
-#How to get it
+##How to get it
 
 ###Stable Version
 You may install the package directly from original Author Michalke's R repository:
