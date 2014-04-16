@@ -135,6 +135,7 @@
 #' @references
 #' [1] \url{http://cran.r-project.org/web/packages/roxygen2/}
 #' @seealso \code{\link[roxyPackage:sandbox]{sandbox}} to run roxy.package() in a sandbox.
+#' @include write_PACKAGES.R
 #' @export
 #' @examples
 #' \dontrun{
@@ -597,7 +598,7 @@ roxy.package <- function(
       shell(r.cmd.install.call, translate=TRUE, ignore.stderr=TRUE, intern=TRUE)
     }
     message("build: built and installed package")
-    tools::write_PACKAGES(dir=repo.src.contrib, type="source", verbose=TRUE, latestOnly=FALSE)
+    write_PACKAGES(dir=repo.src.contrib, type="source", verbose=TRUE, latestOnly=FALSE)
     message("repo: updated src/contrib/PACKAGES (source)")
 
     ## update ChangeLog
@@ -687,7 +688,7 @@ roxy.package <- function(
     suppressWarnings(zip(win.package, pck.package, extras=win.exclude.files))
     message(paste0("repo: created ", pckg.name.win, " (windows)"))
     setwd(jmp.back)
-    tools::write_PACKAGES(dir=repo.win, type="win.binary", verbose=TRUE, latestOnly=FALSE)
+    write_PACKAGES(dir=repo.win, type="win.binary", verbose=TRUE, latestOnly=FALSE)
     message("repo: updated bin/PACKAGES (windows)")
   } else {}
 
@@ -723,7 +724,7 @@ roxy.package <- function(
       compression="gzip", extra_flags=paste("-h ", tar.extraFlags))
     message(paste0("repo: created ", pckg.name.mac, " (mac OS X)"))
     setwd(jmp.back)
-    tools::write_PACKAGES(dir=repo.macosx, type="mac.binary", verbose=TRUE, latestOnly=FALSE)
+    write_PACKAGES(dir=repo.macosx, type="mac.binary", verbose=TRUE, latestOnly=FALSE)
     message("repo: updated bin/PACKAGES (mac OS X)")
   } else {}
 

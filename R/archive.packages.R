@@ -40,6 +40,7 @@
 #' @param reallyDoIt Logical, real actions are only taken if set to \code{TRUE}, otherwise the actions
 #'    are only printed.
 #' @seealso \code{\link[roxyPackage:sandbox]{sandbox}} to run archive.packages() in a sandbox.
+#' @include write_PACKAGES.R
 #' @export
 #' @examples
 #' \dontrun{
@@ -155,7 +156,7 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
             }
             # update PACKAGES
             if(isTRUE(reallyDoIt)){
-              tools::write_PACKAGES(dir=gsub("^file:(/)+", "/", repo.src), type="source", verbose=FALSE, latestOnly=FALSE)
+              write_PACKAGES(dir=gsub("^file:(/)+", "/", repo.src), type="source", verbose=FALSE, latestOnly=FALSE)
               message("archive: updated src/contrib/PACKAGES (source)")
             } else {
               message("archive: updated src/contrib/PACKAGES (source) (NOT RUN!)")
@@ -199,7 +200,7 @@ archive.packages <- function(repo.root, to.dir="Archive", keep=1, package=NULL, 
               }
               # update PACKAGES
               if(isTRUE(reallyDoIt)){
-                tools::write_PACKAGES(dir=gsub("^file:(/)+", "/", this.repo), type=writePCKtype, verbose=FALSE, latestOnly=FALSE)
+                write_PACKAGES(dir=gsub("^file:(/)+", "/", this.repo), type=writePCKtype, verbose=FALSE, latestOnly=FALSE)
                 message(paste0("archive: updated bin/PACKAGES (", this.type, ")"))
               } else {
                 message(paste0("archive: updated bin/PACKAGES (", this.type, ") (NOT RUN!)"))
