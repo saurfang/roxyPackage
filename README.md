@@ -5,7 +5,7 @@ roxyPackage
 
 Workflow utility to maintain R packages
 
-This is a direct mirror of the current roxyPackage http://reaktanz.de/?c=hacking&s=roxyPackage
+This is directly based on the current version of roxyPackage http://reaktanz.de/?c=hacking&s=roxyPackage
 
 Since neither the package author Michalke or anyone has published this codebase on Github, this repository has been created to facilitate experimental feature enhancements and bug fixes.
 
@@ -14,7 +14,13 @@ Since neither the package author Michalke or anyone has published this codebase 
 The source code is distributed under GPL 3 as can be found in the LICENSE.txt
 
 
-##How to get it
+##What's New
+
+* `archive.packages` now works under Windows
+* `write_PACKAGES` wrapper has been added to speed up indexing on network drive under Windows
+
+
+##How to Get It
 
 ####Stable Version
 You may install the package directly from original Author Michalke's R repository:
