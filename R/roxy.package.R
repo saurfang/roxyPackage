@@ -576,28 +576,49 @@ roxy.package <- function(
     ## TODO: find a solution without sedwd()
     jmp.back <- getwd()
     setwd(file.path(pck.source.dir, ".."))
-    if(isTRUE(unix.OS)){
-      r.cmd.build.call <- paste0(R.bin, " CMD build ", Rcmd.opt.build, pck.source.dir)
-      system(r.cmd.build.call, intern=TRUE)
-    } else {
-      r.cmd.build.call <- paste0(R.bin, " CMD build ", Rcmd.opt.build, shQuote(pck.source.dir, type="cmd"))
-      shell(r.cmd.build.call, translate=TRUE, ignore.stderr=TRUE, intern=TRUE)
-    }
-    file.mv(from=file.path(pck.source.dir,"..",pckg.name.src), to=repo.src.gz, overwrite=TRUE)
+    ## Ready to stop when build or install fails
+    buildInstallError <- 
+      tryCatch({
+        if(isTRUE(unix.OS)){
+          r.cmd.build.call <- paste0(R.bin, " CMD build ", Rcmd.opt.build, pck.source.dir)
+          system(r.cmd.build.call, intern=TRUE)
+        } else {
+          r.cmd.build.call <- paste0(R.bin, " CMD build ", Rcmd.opt.build, shQuote(pck.source.dir, type="cmd"))
+          shell(r.cmd.build.call, translate=TRUE, ignore.stderr=TRUE, intern=TRUE)
+        }
+        file.mv(from=file.path(pck.source.dir,"..",pckg.name.src), to=repo.src.gz, overwrite=TRUE)
+        message(paste0("repo: copied ", pckg.name.src, " to src/contrib."))
+        FALSE
+      }, warning = function(x){
+        warning(x)
+        TRUE
+      })
     setwd(jmp.back)
-    message(paste0("repo: copied ", pckg.name.src, " to src/contrib."))
+    if(buildInstallError)
+      stop(simpleError("Build was unsuccessful! Aborting..."))
+    
     # install.packages() doesn't work if we want to build for/with other R installations than
     # the actual running one, so we'll use  R CMD INSTALL instead
-    if(isTRUE(unix.OS)){
-      r.cmd.install.call <- paste0(R.bin, " CMD INSTALL -l ", R.libs, " ",
-        Rcmd.opt.install, pck.source.dir)
-      system(r.cmd.install.call, intern=TRUE)
-    } else {
-      r.cmd.install.call <- paste0(R.bin, " CMD INSTALL -l ", shQuote(R.libs, type="cmd"), " ",
-        Rcmd.opt.install, shQuote(pck.source.dir, type="cmd"))
-      shell(r.cmd.install.call, translate=TRUE, ignore.stderr=TRUE, intern=TRUE)
-    }
-    message("build: built and installed package")
+    buildInstallError <-
+      tryCatch({
+        if(isTRUE(unix.OS)){
+          r.cmd.install.call <- paste0(R.bin, " CMD INSTALL -l ", R.libs, " ",
+                                       Rcmd.opt.install, pck.source.dir)
+          system(r.cmd.install.call, intern=TRUE)
+        } else {
+          r.cmd.install.call <- paste0(R.bin, " CMD INSTALL -l ", shQuote(R.libs, type="cmd"), " ",
+                                       Rcmd.opt.install, shQuote(pck.source.dir, type="cmd"))
+          shell(r.cmd.install.call, translate=TRUE, ignore.stderr=TRUE, intern=TRUE)
+        }
+        message("build: built and installed package")
+        FALSE
+      }, warning = function(x){
+        warning(x)
+        TRUE
+      })
+    if(buildInstallError)
+      stop(simpleError("Install was unsuccessful! Aborting..."))
+    
     write_PACKAGES(dir=repo.src.contrib, type="source", verbose=TRUE, latestOnly=FALSE)
     message("repo: updated src/contrib/PACKAGES (source)")
 
