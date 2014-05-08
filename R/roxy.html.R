@@ -256,7 +256,7 @@ roxy.html <- function(pckg, index=FALSE, css="web.css", R.version=NULL,
           rx.tr("Vignettes:", XMLNode("",
             .children=as.list(sapply(url.vgn, function(this.vgn){
               XMLNode("", .children=list(
-                XMLNode("a", this.vgn, attrs=list(href=this.vgn)),
+                XMLNode("a", basename(this.vgn), attrs=list(href=this.vgn)),
                 XMLNode("br"))
               )
             }))))},

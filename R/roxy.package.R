@@ -663,7 +663,7 @@ roxy.package <- function(
       tools::buildVignettes(dir=pck.source.dir)
       # check for possible vignette documents
       # becomes character(0) if none found
-      pdf.vignette.files <- list.files(pckg.vignette.dir, pattern="*.pdf", ignore.case=TRUE)
+      pdf.vignette.files <- list.files(pckg.vignette.dir, pattern="*.pdf|*.html", ignore.case=TRUE)
       createMissingDir(file.path(R.libs, pck.package, "doc"), action="doc")
       for(thisVignette in pdf.vignette.files){
         pdf.vignette.src <- file.path(pckg.vignette.dir, thisVignette)
@@ -674,7 +674,12 @@ roxy.package <- function(
         } else {}
         message(paste0("build: created PDF vignette (", thisVignette, ")"))
         ## copy vignettes
-        pdf.vignette.repo <- file.path(repo.pckg.info, thisVignette)
+        pdf.vignette.repo.dir <- file.path(repo.pckg.info, "vignettes")
+        if(!file.exists(pdf.vignette.repo.dir))
+          stopifnot(dir.create(pdf.vignette.repo.dir))
+        
+        pdf.vignette.repo <- file.path(pdf.vignette.repo.dir, thisVignette)
+        
         if(file.exists(pdf.vignette.dst)){
           stopifnot(file.copy(pdf.vignette.dst, pdf.vignette.repo, overwrite=TRUE))
           message(paste0("repo: updated vignette (", thisVignette, ")"))
@@ -814,9 +819,8 @@ roxy.package <- function(
       url.deb.repo <- "deb_repo.html"
     } else {}
     # check for docs to link
-    pdf.docs.repo.files <- list.files(repo.pckg.info, pattern="*.pdf", ignore.case=TRUE)
     pdf.docs <- file.path(repo.pckg.info, pckg.pdf.doc)
-    pdf.vignette.repo <- pdf.docs.repo.files[!pdf.docs.repo.files %in% pckg.pdf.doc]
+    pdf.vignette.repo <- file.path("vignettes", list.files(file.path(repo.pckg.info, "vignettes"), pattern="*.pdf|.html", ignore.case=TRUE))
     if(file_test("-f", pdf.docs)){
       url.doc <- pckg.pdf.doc
     } else {}
